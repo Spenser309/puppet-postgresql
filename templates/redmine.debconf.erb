@@ -1,0 +1,46 @@
+# Redmine instances to be configured or upgraded:
+redmine	redmine/current-instances	string	<% instances.each do |instance| -%> <%= instance -%> <% end -%> 
+
+<% instances.each do |instance| -%>
+
+# Host running the  server for redmine/instances/default:
+redmine	redmine/instances/<%= instance -%>/remote/newhost	         string   <%= domain -%>
+# Default Language
+redmine	redmine/instances/<%= instance -%>/default-language	      select	<%= lang -%>
+# Set admin password
+redmine	redmine/instances/<%= instance -%>/password-confirm	      password	<%= admin_passwd -%>
+# Confirm admin password
+redmine	redmine/instances/<%= instance -%>/app-password-confirm     password	<%= admin_passwd -%>
+# Port number for the  service:
+redmine	redmine/instances/<%= instance -%>/remote/port	            string   <%= port -%> 
+
+# Database Configuration
+
+# Perform upgrade on database for redmine/instances/default with dbconfig-common?
+redmine	redmine/instances/<%= instance -%>/dbconfig-upgrade	      boolean	true 
+# Configure database for redmine/instances/default with dbconfig-common?
+redmine	redmine/instances/<%= instance -%>/dbconfig-install	      boolean	true
+
+# Currently only supports mysql connections to a database on the localhost.
+
+# Database type to be used by redmine/instances/default:
+# Choices: sqlite3, pgsql, mysql
+redmine	redmine/instances/<%= instance -%>/database-type	         select	mysql # Current Limitation.
+# Connection method for MySQL database of redmine/instances/default:
+# Choices: unix socket, tcp/ip 
+redmine	redmine/instances/<%= instance -%>/mysql/method	            select   unix socket # Current Limitation.
+# Host name of the  database server for redmine/instances/default:
+redmine	redmine/instances/<%= instance -%>/remote/host	            select   # Current Limitation.
+# Name of the database's administrative user:
+redmine	redmine/instances/<%= instance -%>/mysql/admin-user	      string	<%= db_admin -%>
+# db_root_password
+redmine	redmine/instances/<%= instance -%>/mysql/admin-pass	      password	<%= db_admin_passwd -%>
+
+#  database for mysql app user
+redmine	redmine/instances/<%= instance -%>/db/dbname	               string	<%= db_name -%>
+#  username for mysql app user
+redmine	redmine/instances/<%= instance -%>/db/app-user	            string	<%= db_user -%>
+#  password for mysql app user
+redmine	redmine/instances/<%= instance -%>/mysql/app-pass	         password	<%= db_passwd -%>
+
+<% end -%>
