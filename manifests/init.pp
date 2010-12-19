@@ -13,14 +13,12 @@
 class redmine {
 	package{"redmine":
 		ensure       => present,
-		responsefile => template("puppet:///modules/redmine/redmine.debconf.erb"),
-		require      => 
+		responsefile => template("puppet:///modules/redmine/redmine.debconf.erb")
 	}
 }
 
-define redmine::instance($domain, $ssl=false) {
-	
-	
-}
+
+
+
 
 
