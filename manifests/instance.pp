@@ -83,6 +83,19 @@ define redmine::instance(
    
    if $smtp == "fetch" {
    
+   } else {
+      
+   }
+   
+   if $email == " " {
+   
+   } else {
+   
+   }
+
+   if $noc == " " {
+   
+   } else {
    
    }
 

@@ -1,4 +1,4 @@
-name    'Spenser309-redmine'
+name    'Gillilanding-redmine'
 version '0.0.1'
 
 ## Add dependencies, if any:
