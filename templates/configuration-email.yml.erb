@@ -1,0 +1,14 @@
+
+production:
+<% if @email != 'none' %>
+   email_delivery:
+      delivery_method: :<%= @email %>
+<%    if @email == 'async_smtp' -%>
+      smtp_settings:
+         address: <%= @smtp_server %>
+         port: 25
+<%    end -%>
+<% end -%>
+
+
+  

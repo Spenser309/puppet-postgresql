@@ -1,6 +1,6 @@
 # Definition: redmine::instance
 #
-# This is the mydefinition in the mymodule module.
+# This definition creates a redmine instance.
 #
 # Parameters:
 #
@@ -13,38 +13,36 @@
 define redmine::instance(
    # Redmine Settings
    $lang         = "en",        # Select from a ton.
-   $admin_passwd = "admin",
+   $admin_passwd = "admin",     # Initial Admin Password
    # Webserver Settings
    $webserver    = "apache",    # Currently the only valid selection
    $cgi          = "passenger", # Currently the only valid selection
-   $auth         = "unixgroup", # Currently the only valid selection
-   $priority     = 15,         
-   $domain       = $name,        
-   $ssl          = false,       
+   $repo_auth    = "redmine",   # Currently the only valid selection
+   $priority     = 15,          # Required if running multiple vhosts
+   $host         = "$name.$domainname",       # Web address where the vhost should be accessible
+   $suburi        = "/redmine", # Suburi for accessing redmine
+   $ssl          = true,        # Use SSL Encryption
    # Database Settings
-   $db           = "mysql",
-   $db_host      = false,
-   $db_user      = $name,
-   $db_passwd    = $name,
+   $db           = "postgresql",# Database to use
+   $db_host      = "localhost", # Use localhost for database
+   $db_name      = $name,       # Name of DB to use.
+   $db_user      = $name,       # DB User
+   $db_passwd    = "na",        # No default db password allowed
    # Outgoing Email Configuration
-   $smtp         = false,
-   $smtp_host    = "localhost",
-   $smtp_tls     = false,
-   $smtp_user    = "redmine@$domain",
-   $smtp_passwd  = false,
+   $smtp         = true,        # Use SMTP for sending emails
+   $smtp_host    = "localhost", # Hostname of SMTP server
+   $smtp_tls     = true,        # TLS enabled for smtp
+   $smtp_user    = "redmine@$domain", # Username
+   $smtp_passwd  = "na",
    # Incoming Email Configuration
-   $email        = false,
+   $email        = true,
    $email_addr   = "redmine@$domain",
-   # Backup Settings
-   $backup_style = false,
-   # More to come.
-   # Monitoring Settings
-   $noc          = false,
-   $noc_serve    = false
-   # More to come. ) 
+   )
 {
    include redmine
- 
+   
+
+   
    if $webserver == "apache" {
       include apache
       

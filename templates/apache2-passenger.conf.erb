@@ -1,0 +1,86 @@
+PerlLoadModule Apache::Authn::Redmine
+PassengerUser apache
+PassengerResolveSymlinksInDocumentRoot on
+#SetEnv RAILS_RELATIVE_URL_ROOT "/redmine"
+
+<VirtualHost *:80>
+
+   RailsEnv production
+   RailsBaseURI /redmine
+
+   Alias "/redmine/plugin_assets/" /var/lib/redmine/plugin_assets/
+   Alias "/redmine"  /usr/local/share/redmine-<%= @version -%>/public
+   #DocumentRoot /usr/local/share/redmine-<%= @version -%>/public
+
+   <Directory "/usr/local/share/redmine-<%= @version -%>/public">
+      Options -MultiViews
+      Order allow,deny
+      Allow from all
+   </Directory>
+
+   <Location "/redmine/sys">
+      Order deny,allow
+      Allow from 127.0.0.1
+      Deny from all
+   </Location>
+   
+   # Git Support
+   SetEnv GIT_PROJECT_ROOT /var/lib/git
+   SetEnv GIT_HTTP_EXPORT_ALL 1
+   
+    ScriptAlias /git/ /usr/libexec/git-core/git-http-backend/
+    AliasMatch ^/gitweb/$ /dev/null
+   #ScriptAlias /git-private/ /usr/libexec/git-core/git-http-backend
+   
+   <Location /git>
+      Order allow,deny
+      Allow from all
+      
+      AuthType Basic
+      Require valid-user
+      AuthName "Git Repos"
+      PerlAccessHandler Apache::Authn::Redmine::access_handler
+      PerlAuthenHandler Apache::Authn::Redmine::authen_handler
+      
+      RedmineDSN "DBI:<%= @db_dbd_adapter -%>:database=<%= @db_name -%>;host=<%= @db_host -%>"
+      RedmineDbUser "<%= @db_user -%>"
+      RedmineDbPass "<%= @db_password -%>"
+      RedmineGitSmartHttp yes
+   </Location>
+   
+   <Location /git-private>
+      Order deny,allow
+      Deny from all
+      <Limit GET PROPFIND OPTIONS REPORT>
+         Options Indexes FollowSymLinks MultiViews
+         Allow from 127.0.0.1
+      </Limit>
+   </Location>
+   
+   <Location /svn>
+      DAV svn
+      SVNParentPath "/var/lib/svn"
+      Order deny,allow
+      Deny from all
+      Satisfy any
+      SSLRequireSSL
+      
+      PerlAccessHandler Apache::Authn::Redmine::access_handler
+      PerlAuthenHandler Apache::Authn::Redmine::authen_handler
+      RedmineDSN "DBI:<%= @db_dbd_adapter -%>:database=<%= @db_name -%>;host=<%= @db_host -%>"
+      RedmineDbUser "<%= @db_user -%>"
+      RedmineDbPass "<%= @db_password -%>
+      AuthType Basic
+      AuthName "SVN Repos"
+      
+      <Limit GET PROPFIND OPTIONS REPORT>
+         Require valid-user
+         Allow from 127.0.0.1
+         Satisfy any
+      </Limit>
+      
+      <LimitExcept GET PROPFIND OPTIONS REPORT>
+         Require valid-user
+      </LimitExcept>
+   </Location>
+</VirtualHost>

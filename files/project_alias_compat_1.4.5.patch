@@ -1,0 +1,27 @@
+diff -rNau project_alias/app/views/project_aliases/new.rhtml project_alias_new/app/views/project_aliases/new.rhtml
+--- project_alias/app/views/project_aliases/new.rhtml	2011-10-01 19:58:42.000000000 +0000
++++ project_alias_new/app/views/project_aliases/new.rhtml	2012-12-11 01:43:05.014181077 +0000
+@@ -1,8 +1,14 @@
+ <h2><%= link_to(l(:label_project_alias_plural), { :controller => 'project_aliases', :action => 'index' }) %> &#187; <%= l(:label_project_alias_new) %></h2>
+ 
+-<%= error_messages_for :alias %>
++<% if @alias.errors.any? %>
++  <ul>
++    <% @alias.errors.full_messages.each do |msg| %>
++      <li><%= msg %></li>
++    <% end %>
++  </ul>
++<% end %>
+ 
+-<% form_for(@alias, :url => { :action => 'create' }, :builder => TabularFormBuilder) do |f| %>
++<% form_for(@alias, :url => { :action => 'create' }, :builder => Redmine::Views::LabelledFormBuilder) do |f| %>
+   <div class="box tabular">
+     <p>
+       <%= f.text_field(:alias, :size => 60, :required => true) %><br />
+diff -rNau project_alias/config/routes.rb project_alias_new/config/routes.rb
+--- project_alias/config/routes.rb	1970-01-01 00:00:00.000000000 +0000
++++ project_alias_new/config/routes.rb	2012-12-11 00:09:37.435195145 +0000
+@@ -0,0 +1,3 @@
++ActionController::Routing::Routes.draw do |map|
++  map.connect 'admin/plugins/project_alias/:action', :controller => 'project_aliases', :conditions => {:method => [:post, :get]}
++end

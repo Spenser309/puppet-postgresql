@@ -1,0 +1,61 @@
+#!/bin/bash
+
+set -x
+set -e
+
+# Download redmine
+wget $DOWNLOAD_LOCATION -O redmine-$VERSION.tar.gz
+
+# Unpack Redmine
+tar xvzf redmine-$VERSION.tar.gz 2>&1 > /dev/null
+
+# Apply any patches
+ yum -y install patch 2>&1 > /dev/null
+ ## 1.4.x Patch
+ wget http://www.redmine.org/attachments/download/8207/Redmine.pm-1.4.4-based-on-1.4.1-multiscm-2--improved2.patch
+ cd redmine-$VERSION
+ patch -p0 < ../Redmine.pm-1.4.4-based-on-1.4.1-multiscm-2--improved2.patch
+ cd ..
+ 
+chown -R apache.apache redmine-$VERSION
+cd redmine-$VERSION
+
+# Install gems using bundler
+bundle install --without test development .bundle 2>&1 > /dev/null
+
+# Configure /tmp
+rm -rf tmp
+ln -s /tmp tmp
+
+# Create log dir
+mkdir -p /var/log/redmine || true
+chown apache:apache /var/log/redmine
+rm -rf log && ln -s /var/log/redmine log || true
+
+# install *.yml symlinks
+ln -s /etc/redmine/database.yml config/database.yml || true
+ln -s /etc/redmine/configuration.yml config/configuration.yml || true
+ln -s /etc/redmine/scm.yml config/scm.yml || true
+
+# Create session store secret
+sudo -u apache bundle exec rake generate_session_store RAILS_ENV=production 
+
+# Update the DB
+sudo -u apache bundle exec rake db:migrate RAILS_ENV=production 
+
+# Update any plugins
+sudo -u  apache bundle exec rake db:migrate_plugins RAILS_ENV=production || true
+
+# Clear Cache and existing sessions
+sudo -u  apache bundle exec rake tmp:cache:clear RAILS_ENV=production 
+sudo -u  apache bundle exec rake tmp:sessions:clear RAILS_ENV=production 
+
+mkdir -p /usr/lib64/perl5/Apache/Authn
+mkdir -p /usr/lib/perl5/Apache/Authn
+install -m 755 extra/svn/Redmine.pm /usr/lib64/perl5/Apache/Authn/
+install -m 755 extra/svn/Redmine.pm /usr/lib/perl5/Apache/Authn/
+
+# Update symlink for redmine
+cd ..
+ln -s /usr/local/share/redmine-${VERSION}/public /var/www/html/redmine
+rm redmine-${VERSION}.tar.gz

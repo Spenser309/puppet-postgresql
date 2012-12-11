@@ -1,5 +1,7 @@
 redmine
 
+MODULE NOT YET READY FOR PRODUCTION USE
+
 This is the redmine module.  It provides a configuration pattern for a multiple 
 instance redmine service using the debconf modules and Ubuntu patches.  It is 
 currently very specific to Ubuntu and it may not even make sense to port it to 

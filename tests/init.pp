@@ -1,36 +1,20 @@
 
+class{'redmine':
+   version       => '1.4.5',
+   db_adapter    => 'postgresql',
+   db_host       => 'localhost',
+   db_name       => 'redmine',
+   db_user       => 'redmine',
+   db_password   => 'redmine',
+   email         => 'none',
+   smtp_server   => 'na',
+   smtp_domain   => 'na',
+   smtp_auth     => 'none',
+   smtp_tls      => false,
+   smtp_user     => 'na',
+   smtp_password => 'na',
+}
 
-redmine::instance{"gillilanding.com": ssl => false }
-
-redmine::instance{"dev.gillilanding.com":
-   # Redmine Settings
-   lang         => "en",        # Select from a ton.
-   admin_passwd => "admin",
-   # Webserver Settings
-   webserver    => "apache",    # Currently the only valid selection
-   cgi          => "passenger", # Currently the only valid selection
-   auth         => "unixgroup", # Currently the only valid selection
-   priority     => 15,         
-   domain       => $name,        
-   ssl          => false,       
-   # Database Settings
-   db           => "mysql",
-   db_host      => false,
-   db_user      => $name,
-   db_passwd    => $name,
-   # Outgoing Email Configuration
-   smtp         => false,
-   smtp_host    => "localhost",
-   smtp_tls     => false,
-   smtp_user    => "redmine@$domain",
-   smtp_passwd  => false,
-   # Incoming Email Configuration
-   email        => false,
-   email_addr   => "redmine@$domain",
-   # Backup Settings
-   backup_style => false,
-   # More to come.
-   # Monitoring Settings
-   noc          => false,
-   noc_serve    => false
-} 
+include redmine::plugins::scm_creator
+include redmine::plugins::project_alias
+#include redmine::plugins::checkout # Causes errors with scm_creator
