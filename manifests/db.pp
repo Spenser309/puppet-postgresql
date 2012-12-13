@@ -1,36 +1,51 @@
 # class redmine:db
 # Sets up the redmine database.
-
-class redmine::db {
-   $db_adapter    = $redmine::db_adapter
-   $db_host       = $redmine::db_host
-   $db_name       = $redmine::db_name
-   $db_user       = $redmine::db_user
-   $db_password   = $redmine::db_password
-   
-   if $db_password == 'na' and $dp_adapter != 'sqlite' {
+#
+class redmine::db (
+   $instance   = 'default',
+   $adapter    = 'postgresql',
+   $host       = 'localhost',
+   $name       = 'redmine',
+   $user       = 'redmine',
+   $password   = 'default',
+   $path       = 'default'
+) {
+   if $password == 'default' and $adapter != 'sqlite' {
      fail("ERROR: Please set a password for the Database.")
    }
-   
-   if $db_host == "localhost" {
-     case $db_adapter {
-        'postgresql': {
+
+   # Manage the Database if database should be on localhost.
+   if $host == "localhost" {
+      case $db_adapter {
+         'postgresql': {
             include postgresql::server
-     
-            postgresql::db { "${db_name}":
-               user     => "${db_user}",
-               password => "${db_password}",
+
+            postgresql::db {"${name}":
+               user     => "${user}",
+               password => "${password}",
             }
          }
+         'mysql': {
+            include mysql::server
+
+            mysql::db {"${name}":
+               user     => "${user}",
+               password => "${password}",
+            }
+         }
+         'sqlite': {
+            #include sqlite
+         }
          default: {
-            fail("No known Database type selected.")
+            fail("Database adapter not implemented.")
          }
       }
    }
-
-   file{"/etc/redmine/database.yml":
-      owner  => apache,
-      group  => apache,
+   
+   @file{"${instance}-database.yml":
+      path   => "/etc/redmine/$instance/database.yml",
+      owner  => $redmine::params::user,
+      group  => $redmine::params::group,
       mode   => 600,
       content => template("redmine/database.yml.erb");
    }

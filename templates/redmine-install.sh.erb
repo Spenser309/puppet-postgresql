@@ -47,8 +47,8 @@ sudo -u apache bundle exec rake db:migrate RAILS_ENV=production
 sudo -u  apache bundle exec rake db:migrate_plugins RAILS_ENV=production || true
 
 # Clear Cache and existing sessions
-sudo -u  apache bundle exec rake tmp:cache:clear RAILS_ENV=production 
-sudo -u  apache bundle exec rake tmp:sessions:clear RAILS_ENV=production 
+sudo -u  apache bundle exec rake tmp:cache:clear RAILS_ENV=production
+sudo -u  apache bundle exec rake tmp:sessions:clear RAILS_ENV=production
 
 mkdir -p /usr/lib64/perl5/Apache/Authn
 mkdir -p /usr/lib/perl5/Apache/Authn
